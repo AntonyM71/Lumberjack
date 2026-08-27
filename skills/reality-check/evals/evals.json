@@ -1,0 +1,50 @@
+{
+  "skill_name": "reality-check",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm picking this AEMS project back up after a few months away \u2014 it's the kayaking competition scoring app. From what I remember: there's a FastAPI backend that owns all the scoring and competition data, and a React frontend that judges use on tablets. The frontend and backend talk directly to each other, and I think we're using plain WebSockets for the live score updates since we rolled our own reconnect logic for that ages ago. The frontend just calls the backend's REST endpoints directly for everything else \u2014 no code generation or anything like that. I don't remember there being anything besides those two services. Can you check whether that's still an accurate picture of how the system is put together? Repo is at C:\\Users\\anton\\CodeInSight-eval-targets\\AEMS.",
+      "expected_output": "A reality-check report (architecture/C4 lens) saved under docs/mental-model/ in the AEMS repo, with a plain 'your model' diagram matching the two-service description given, and a graded 'reality' C4 diagram. Should grade the WebSockets claim red (actually Socket.IO per ADR006), the 'no code generation' claim red (aemsApi.ts is generated from OpenAPI via buildApi.sh), 'React frontend' amber (it's Next.js), the FastAPI/scoring ownership claim green, and flag GraphicsServer/Timer/Common as grey (real but unmentioned).",
+      "files": [],
+      "expectations": [
+        "Report includes two separate mermaid diagrams: an ungraded 'your model' diagram and a graded 'reality' diagram",
+        "Reality diagram includes a red/amber/green (or equivalent) legend explaining what each grade means",
+        "Flags real-time updates as using Socket.IO rather than plain/raw WebSockets",
+        "Flags that the frontend API client is generated from an OpenAPI schema, contradicting the 'no code generation' claim",
+        "Notes the frontend is Next.js specifically, not just generic React",
+        "Mentions at least one real component the user's model omitted entirely (e.g. GraphicsServer, Timer, or Common)",
+        "Report is saved under a docs/mental-model/ path in the target repo following a dated filename convention"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We're setting up AEMS for a small local competition next weekend and I want to make sure I've got the deployment right before we're on-site with flaky venue wifi. My understanding: docker-compose brings up three containers \u2014 the frontend on port 3000, the FastAPI backend on port 8000, and a Postgres database \u2014 and nginx sits in front on port 80 so judges just hit the server's IP address. Everything's self-contained in that one compose file, no external network setup needed, and the database data doesn't need to survive between events since we start fresh each competition anyway. Can you check this against how deployment actually works before we get to the venue? Repo: C:\\Users\\anton\\CodeInSight-eval-targets\\AEMS",
+      "expected_output": "A reality-check report (deployment lens) saved under docs/mental-model/ in the AEMS repo, with an ungraded 'your model' diagram and a graded reality diagram (flowchart with host/network subgraphs). Should grade nginx-on-port-80 red (it's actually 81), 'no external network setup needed' red (docker-compose.yaml requires a pre-created external aems_shared network), and the 'data doesn't need to survive' claim red or amber (postgres-prod-data is a named/mounted volume implying intended persistence). Should flag the separate docker-compose.graphics.yaml / GraphicsServer deployment as grey (unmentioned).",
+      "files": [],
+      "expectations": [
+        "Report includes two separate mermaid diagrams: an ungraded 'your model' diagram and a graded 'reality' diagram",
+        "Reality diagram includes a red/amber/green (or equivalent) legend explaining what each grade means",
+        "Flags that nginx is actually exposed on port 81, not port 80",
+        "Flags that an external Docker network must be created before the compose stack works, contradicting 'no external network setup needed'",
+        "Flags that Postgres data is persisted via a mounted/named volume, contradicting or complicating the 'doesn't need to survive' claim",
+        "Mentions the separate graphics-server deployment (docker-compose.graphics.yaml) as something outside the user's stated model",
+        "Report is saved under a docs/mental-model/ path in the target repo following a dated filename convention"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Trying to understand how a score actually gets from a judge's tablet to the big screen at the venue. My mental model: judge taps moves on their tablet, that hits an API endpoint on the FastAPI server which saves it straight to Postgres, and then the arena display screen polls the server every few seconds for the latest totals to refresh what it shows. I think PDF results are generated client-side in the browser when someone clicks 'export' after the competition. Also, I believe competitions can only be set up by manually creating each athlete and heat through the UI one at a time \u2014 there's no bulk import. Can you check this data flow against reality? Repo: C:\\Users\\anton\\CodeInSight-eval-targets\\AEMS",
+      "expected_output": "A reality-check report (data-flow lens) saved under docs/mental-model/ in the AEMS repo, with an ungraded 'your model' diagram and a graded reality flowchart. Should grade 'display polls every few seconds' red (real-time push via Socket.IO, not polling), 'PDF generated client-side' red (fpdf2 generates PDFs server-side), and 'no bulk import' red (create_competition_from_xlsx.py / CSV import exists). The judge-tap-to-API-to-Postgres claim should be green. Should flag the broadcast overlay/graphics-pack flow and hardware timer integration as grey (unmentioned).",
+      "files": [],
+      "expectations": [
+        "Report includes two separate mermaid diagrams: an ungraded 'your model' diagram and a graded 'reality' diagram",
+        "Reality diagram includes a red/amber/green (or equivalent) legend explaining what each grade means",
+        "Flags that display updates are pushed in real time (e.g. via Socket.IO) rather than polled every few seconds",
+        "Flags that PDF generation happens server-side, contradicting the 'client-side in the browser' claim",
+        "Flags that bulk competition creation via CSV/XLSX import exists, contradicting the 'no bulk import' claim",
+        "Mentions the broadcast overlay/graphics-pack flow or hardware timer as outside the user's stated model",
+        "Report is saved under a docs/mental-model/ path in the target repo following a dated filename convention"
+      ]
+    }
+  ]
+}
