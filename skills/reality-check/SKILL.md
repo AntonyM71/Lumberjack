@@ -13,10 +13,11 @@ instead of assumed. It compares what a specific person believes about a
 specific area against what the code currently does, and hands back a report
 built around diagrams, not prose, so the reader can spot the gaps in seconds.
 
-The output is one Markdown file with two Mermaid diagrams: the model as
-described, and reality with each part graded on how well it matched. Keep
-prose everywhere else minimal — bullets and short captions, never an essay.
-The diagrams are the deliverable.
+The output is one Markdown file built around two Mermaid diagrams: the
+model as described, and reality with each part graded on how well it
+matched (plus a small standalone legend for the grades). Keep prose
+everywhere else minimal — bullets and short captions, never an essay. The
+diagrams are the deliverable.
 
 ## Flow
 
@@ -24,7 +25,7 @@ The diagrams are the deliverable.
 2. Elicit the mental model
 3. Investigate reality
 4. Grade the model against reality
-5. Build the two diagrams
+5. Build the diagrams
 6. Write the report and summarize concisely
 
 ### 1. Scope the comparison
@@ -138,35 +139,50 @@ WebSockets" and "the display polls every few seconds" are both edge claims:
 they're wrong about a connection, not about whether a component exists.
 Misfiling an edge claim as a node claim is exactly what pushes a finding
 out of the diagram and into prose, which is the failure mode this skill
-exists to avoid — the diagram should be able to state "pushed via
-Socket.IO, not polled" directly on the arrow, not just at the two
-components it connects.
+exists to avoid — the arrow itself should state the correction, phrased as
+a sentence with its endpoints ("pushes new scores via Socket.IO, not
+polled"; see step 5), not just connect two components.
 
-For every grade, note **one concrete piece of evidence** — a file path
-(ideally file:line), config key, or specific behavior — never a vague "this
-seems off." If you can't point to the specific evidence, you haven't
+For every grade, capture two things: **what the code actually does** — one
+plain line, the correction stated directly, which becomes the Reality
+column of the findings table — and **one concrete citation** for it: a file
+path (ideally file:line), config key, or specific behavior, never a vague
+"this seems off." If you can't point to a specific citation, you haven't
 investigated enough yet; go back to step 3 rather than guessing at a grade.
-Keep the evidence itself terse (see step 6) — the rigor is in having a real
-citation, not in how much you write about it.
+Keep the citation itself to one line — ideally just `file:line` plus three
+to five words (see step 6). The rigor is in having a real citation, not in
+how much you write about it.
 
-### 5. Build the two diagrams
+### 5. Build the diagrams
 
-Two Mermaid diagrams, matched to the lens chosen in step 1:
+Matched to the lens chosen in step 1:
 
 1. **Your model** — a plain, ungraded rendering of exactly what the user
    described. No colors, no judgment. This is a mirror, not a verdict.
-2. **Reality** — the actual structure, with every node/relationship styled
-   by its grade from step 4, plus a legend.
+2. **Reality** — the actual structure, with every node and relationship
+   styled by its grade from step 4. Grade the arrows too, not just the
+   boxes (see step 4).
+3. **Legend** — a small standalone diagram naming the four grades. Keep it
+   **out** of the reality diagram: an embedded legend `subgraph` competes
+   with the real content for space and distorts Mermaid's layout. It goes
+   directly after the reality diagram in the report (see step 6).
+
+**Every edge label reads as a sentence with its two endpoints.** An arrow
+from `server` to `Postgres` labelled "reads and writes" reads "server reads
+and writes Postgres"; a bare `server --> db` or a cryptic `server -->|SQL|
+db` does not. Use a lowercase, present-tense verb phrase. This is what lets
+a reader follow the diagram without decoding it.
 
 Read [references/mermaid-patterns.md](references/mermaid-patterns.md) before
 writing the reality diagram — it has copy-ready snippets for C4 element
-styling, flowchart grade outlines, the legend block, and a
-deployment/data-flow subgraph pattern. Mermaid's syntax is picky about
-exact placement of style/class statements; reusing the templates avoids
-diagrams that fail to render. Grade with **outlines/borders only** — don't
-recolor fills — so the diagram still reads cleanly in both light and dark
-rendering and the grade doesn't fight with any other meaning color might
-carry (e.g. a service already colored by team).
+styling, flowchart grade outlines, the standalone legend block,
+sentence-style edge labels, and a deployment/data-flow subgraph pattern.
+Mermaid's syntax is picky about exact placement of style/class statements;
+reusing the templates avoids diagrams that fail to render. Grade with
+**outlines/borders only** — don't recolor fills — so the diagram still
+reads cleanly in both light and dark rendering and the grade doesn't fight
+with any other meaning color might carry (e.g. a service already colored by
+team).
 
 ### 6. Write the report and summarize concisely
 
@@ -183,6 +199,11 @@ it automatically — this is a working diagnostic artifact, not a decision
 record, and running this skill repeatedly would clutter history with
 auto-commits. Mention the path and let the user decide whether to keep it
 under version control.
+
+Read [references/writing-style.md](references/writing-style.md) before
+writing the prose — the TL;DR bullets, the captions, the one-line
+restatement, and the Reality column. It's five short rules that keep those
+lines terse and specific instead of hedged and wordy.
 
 ```markdown
 # Reality Check: <topic>
@@ -205,31 +226,38 @@ under version control.
 ## Reality
 
 \`\`\`mermaid
-<graded diagram, styled per references/mermaid-patterns.md, legend included>
+<graded diagram, styled per references/mermaid-patterns.md — no legend inside it>
+\`\`\`
+
+*Legend:*
+
+\`\`\`mermaid
+<standalone legend block from references/mermaid-patterns.md>
 \`\`\`
 
 ## What's off, and why
 
-| Grade | Claim | Evidence |
-|---|---|---|
-| 🔴 | <specific claim> | <file:line — short pointer> |
-| 🟡 | <specific claim> | <file:line — short pointer> |
-| ⚪ | <thing not in their model at all> | <file:line — short pointer> |
+| Grade | Mental Model | Reality | Evidence |
+|---|---|---|---|
+| 🔴 | <what they believed> | <what the code does> | <file:line> |
+| 🟡 | <what they believed> | <what's actually the case> | <file:line> |
+| ⚪ | — | <real thing not in their model at all> | <file:line> |
 ```
 
 Only list rows worth flagging — skip green claims unless a green result is
 itself surprising or worth confirming explicitly (e.g. "yes, still true
-despite the big refactor last month").
+despite the big refactor last month"). For a listed green row, put the
+claim under Mental Model and "Holds" plus any nuance under Reality.
 
-The Evidence column is a **citation, not a second explanation**. One line:
-a file path (ideally `file:line`) plus a handful of words of paraphrase —
-enough for the reader to go verify it themselves. Never quote code blocks,
-stack multiple citations, or write multi-sentence justifications in this
-table; if a finding needs more than that to land, that's a sign the finding
-itself belongs on the diagram (a node label, or an edge label per
-references/mermaid-patterns.md) rather than being explained here. The
-diagram is what the reader looks at first — the table should never be doing
-work the diagram could do instead.
+The **Reality** column carries the correction — one plain line saying what
+the code actually does. The **Evidence** column is a citation, nothing
+more: one `file:line` (occasionally two) plus three to five words, enough
+for the reader to go check it. Never quote code, stack citations, or write
+sentences in the Evidence column. If a finding needs more than a line to
+land, it belongs on the diagram — a node label, or an edge label per
+references/mermaid-patterns.md — not spelled out in the table. The diagram
+is what the reader looks at first; the table should never do work the
+diagram could do instead.
 
 In chat, don't restate the report. Point to the file path and give a 3-5
 bullet TL;DR led with the reddest finding, then stop — the diagrams do the

@@ -8,12 +8,13 @@
       "files": [],
       "expectations": [
         "Report includes two separate mermaid diagrams: an ungraded 'your model' diagram and a graded 'reality' diagram",
-        "Reality diagram includes a red/amber/green (or equivalent) legend explaining what each grade means",
+        "The report includes a legend as its own small diagram, separate from the reality diagram, explaining what each grade means",
         "Flags real-time updates as using Socket.IO rather than plain/raw WebSockets",
         "Flags that the frontend API client is generated from an OpenAPI schema, contradicting the 'no code generation' claim",
         "Notes the frontend is Next.js specifically, not just generic React",
         "Mentions at least one real component the user's model omitted entirely (e.g. GraphicsServer, Timer, or Common)",
-        "Report is saved under a docs/mental-model/ path in the target repo following a dated filename convention"
+        "Report is saved under a docs/mental-model/ path in the target repo following a dated filename convention",
+        "The findings table separates the mental-model claim from the corrected reality in distinct columns"
       ]
     },
     {
@@ -23,12 +24,13 @@
       "files": [],
       "expectations": [
         "Report includes two separate mermaid diagrams: an ungraded 'your model' diagram and a graded 'reality' diagram",
-        "Reality diagram includes a red/amber/green (or equivalent) legend explaining what each grade means",
+        "The report includes a legend as its own small diagram, separate from the reality diagram, explaining what each grade means",
         "Flags that nginx is actually exposed on port 81, not port 80",
         "Flags that an external Docker network must be created before the compose stack works, contradicting 'no external network setup needed'",
         "Flags that Postgres data is persisted via a mounted/named volume, contradicting or complicating the 'doesn't need to survive' claim",
         "Mentions the separate graphics-server deployment (docker-compose.graphics.yaml) as something outside the user's stated model",
-        "Report is saved under a docs/mental-model/ path in the target repo following a dated filename convention"
+        "Report is saved under a docs/mental-model/ path in the target repo following a dated filename convention",
+        "The findings table separates the mental-model claim from the corrected reality in distinct columns"
       ]
     },
     {
@@ -38,12 +40,13 @@
       "files": [],
       "expectations": [
         "Report includes two separate mermaid diagrams: an ungraded 'your model' diagram and a graded 'reality' diagram",
-        "Reality diagram includes a red/amber/green (or equivalent) legend explaining what each grade means",
+        "The report includes a legend as its own small diagram, separate from the reality diagram, explaining what each grade means",
         "Flags that display updates are pushed in real time (e.g. via Socket.IO) rather than polled every few seconds",
         "Flags that PDF generation happens server-side, contradicting the 'client-side in the browser' claim",
         "Flags that bulk competition creation via CSV/XLSX import exists, contradicting the 'no bulk import' claim",
         "Mentions the broadcast overlay/graphics-pack flow or hardware timer as outside the user's stated model",
-        "Report is saved under a docs/mental-model/ path in the target repo following a dated filename convention"
+        "Report is saved under a docs/mental-model/ path in the target repo following a dated filename convention",
+        "The findings table separates the mental-model claim from the corrected reality in distinct columns"
       ]
     }
   ]

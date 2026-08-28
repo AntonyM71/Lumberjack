@@ -86,9 +86,9 @@ isn't wired up), read `../reality-check/SKILL.md` and follow its steps
 [mermaid-patterns.md](../reality-check/references/mermaid-patterns.md)
 styling.
 
-The output of this step is the pair reality-check normally produces: an
-ungraded "your model" diagram and a graded "reality" diagram with a
-red/amber/green/grey legend.
+The output of this step is what reality-check normally produces: an
+ungraded "your model" diagram, a graded "reality" diagram, and a small
+standalone red/amber/green/grey legend beside it.
 
 **Investigate as thoroughly here as reality-check would running on its
 own — don't let the fact that a plan follows shrink this step.** It's

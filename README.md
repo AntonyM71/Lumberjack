@@ -16,7 +16,7 @@ Now you're probably thinking, doesn't Claude do that anyway? Well it can, but of
 Add this repo as a plugin marketplace, then install the plugin:
 
 ```
-/plugin marketplace add AntonyM71/lumberjack
+/plugin marketplace add AntonyM71/Lumberjack
 /plugin install lumberjack@lumberjack
 ```
 
@@ -25,12 +25,13 @@ A real, unedited result from one of my projects — one claim, checked against t
 
 # Reality Check: Scoring API to arena display
 
-**Lens:** data flow · **Date:** 2026-08-28 · **Scope:** how a score gets from the scoring API to the arena display at the venue
+**Lens:** data flow · **Date:** 2026-08-28 · **Scope:** how a score reaches the arena display at the venue
 
 ## TL;DR
-- 🔴 Biggest miss: there's no polling anywhere in this path. The arena's live run score arrives over an open Socket.IO subscription that the server pushes to the instant a judge's score commits.
-- 🟡 The arena's other score surface (phase totals table) also isn't on a timer, but it's not pure push either — it refetches on demand only when the broadcast controller changes what's visible.
-- ⚪ Gap: what's actually showing on the arena screen at any moment is chosen by a human-operated controller channel, not the display autonomously fetching "whatever's latest."
+- 🔴 Nothing in this path polls. The live run score arrives over an open Socket.IO subscription, and the server pushes it the instant a judge's score commits.
+- 🟡 The phase-totals panel skips the timer too — it re-fetches only on mount, on a heat change, or when the operator toggles the panel.
+- ⚪ An operator's overlay controller, on a separate `/broadcast_control` socket, decides which heat and panels the arena shows.
+- 🟢 The shape holds: one scoring service owns the data and the arena screen only consumes it.
 
 ## Your model
 
@@ -41,8 +42,8 @@ flowchart LR
     display["Arena screen at the venue"]
     api["Scoring server"]
 
-    display -->|"polls every few seconds"| api
-    api -->|"returns the latest score"| display
+    display -->|"polls every few seconds for the latest score from"| api
+    api -->|"replies with the current totals to"| display
 ```
 
 ## Reality
@@ -54,37 +55,44 @@ flowchart LR
     classDef ciRed   stroke:#e03131,stroke-width:4px,stroke-dasharray: 2 2;
     classDef ciGrey  stroke:#868e96,stroke-width:2px,stroke-dasharray: 1 3;
 
-    api["Scoring API\ncommits score, then\nsio.emit('current_scores')"]
-    control["broadcast_control socket\ndecides what's on screen"]:::ciGrey
+    api["Scoring API"]
+    operator["Operator's overlay controller"]:::ciGrey
 
     subgraph venue["Arena display (venue screen)"]
         liveScore["Live run score panel"]:::ciRed
-        totalsTable["Phase totals panel"]:::ciAmber
+        totals["Phase totals panel"]:::ciAmber
     end
 
-    api -->|"pushed over an open Socket.IO\nsubscription, not polled"| liveScore
-    api -->|"fetched once, refetched only when\ncontroller changes what's shown, no timer"| totalsTable
-    control --> liveScore
-    control --> totalsTable
+    api -->|"pushes every committed score over Socket.IO to"| liveScore
+    api -. "a committed score never refreshes" .-> totals
+    operator -->|"chooses the heat and panels shown on"| venue
+    operator -->|"shows or hides"| totals
 
     linkStyle 0 stroke:#e03131,stroke-width:3px
-    linkStyle 1 stroke:#f08c00,stroke-width:3px,stroke-dasharray: 4 2
+    linkStyle 1 stroke:#868e96,stroke-width:2px,stroke-dasharray: 1 3
+```
 
-    subgraph Legend["Legend"]
-        L1[Matches your model]:::ciGreen
-        L2[Partially right / outdated]:::ciAmber
-        L3[Wrong / contradicts your model]:::ciRed
-        L4[Not in your model at all]:::ciGrey
-    end
+*Legend:*
+
+```mermaid
+flowchart LR
+    classDef ciGreen stroke:#2f9e44,stroke-width:3px;
+    classDef ciAmber stroke:#f08c00,stroke-width:3px,stroke-dasharray: 4 2;
+    classDef ciRed   stroke:#e03131,stroke-width:4px,stroke-dasharray: 2 2;
+    classDef ciGrey  stroke:#868e96,stroke-width:2px,stroke-dasharray: 1 3;
+    L1[Matches your model]:::ciGreen
+    L2[Partially right / outdated]:::ciAmber
+    L3[Wrong / contradicts your model]:::ciRed
+    L4[Not in your model at all]:::ciGrey
 ```
 
 ## What's off, and why
 
-| Grade | Claim | Evidence |
-|---|---|---|
-| 🔴 | The arena's live run score is fetched by polling the server every few seconds | `Server/app/scoring/customScoringEndpoints.py:205-218` — `db.commit()` is immediately followed by `await sio.emit("current_scores", scored_data, namespace="/current_scores")`. `Webapp/src/components/broadcast/Cards/LiveRunScore.tsx:75-82` (rendered on the arena screen via `Webapp/src/components/arena/arena.tsx:87-90`) subscribes with `useAthleteMovesAndBonusesStreamQuery`, which opens a live `socket.io-client` connection (`Webapp/src/redux/services/streamingApi.ts:141` → `WebSocketConnections.ts:25-29`) and pushes updates into the Redux cache as they arrive — no interval anywhere in that path. |
-| 🟡 | The arena's phase totals table also refreshes by checking back with the server periodically | `Webapp/src/components/broadcast/Cards/PhaseResultsTable.tsx:41-61` — `refetchOnMountOrArgChange: true` plus a `useEffect` keyed on `overlayControlState.showPhaseResults` that calls `refetchPhase()`/`refetchScores()` only when that visibility flag changes. No `setInterval`/`pollingInterval` exists anywhere in `Webapp/src` for score data (the only `setInterval` calls found are `BasicBroadcastTable.tsx:33` for rotating already-fetched table pages, and `PixiFrameSequenceOverlay.tsx:491` for animation frame timing — neither re-fetches score data). |
-| ⚪ | What the arena screen currently shows is itself remote-controlled over a separate channel | `Server/app/broadcastEndpoints.py:26-39` (`/broadcast_control` namespace) pushes an `OverlayControlState` that a human-operated controller sets; `Webapp/src/components/arena/arena.tsx:35-91` uses that state to decide which panel/athlete is currently on screen. The display isn't autonomously polling for "whatever's latest" — it's showing whatever the controller has selected. |
+| Grade | Mental Model | Reality | Evidence |
+|---|---|---|---|
+| 🔴 | The live score is fetched by polling the server every few seconds | The server emits `current_scores` over Socket.IO the moment a score commits; the panel holds an open subscription and never polls | `Server/app/scoring/customScoringEndpoints.py:205-218` (emit after commit); `Webapp/src/redux/services/streamingApi.ts:141-173` (client socket) |
+| 🟡 | The same timed re-fetch keeps the phase-totals panel current | The totals panel re-fetches rather than subscribes, but only on mount, on a heat change, or on an operator panel-toggle — never on a timer | `Webapp/src/components/broadcast/Cards/PhaseResultsTable.tsx:47-61` |
+| ⚪ | — | An operator's overlay controller, over a separate `/broadcast_control` socket, sets which heat and panels the arena shows | `Webapp/src/components/arena/arena.tsx:35-55`; `Server/app/broadcastEndpoints.py:26-29` |
 
 ## Contributing
 Before pushing changes, validate the plugin structure and try it in a real session:
