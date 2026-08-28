@@ -1,15 +1,15 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "codeinsight",
-  "description": "Compare your mental model of a codebase to how it actually works, with graded Mermaid diagrams.",
+  "name": "lumberjack",
+  "description": "Compare your mental model of a codebase to how it actually works, and ground plans for changing it in what's actually true — with graded Mermaid diagrams.",
   "owner": {
     "name": "Antony Mitchell",
     "url": "https://github.com/AntonyM71"
   },
   "plugins": [
     {
-      "name": "codeinsight",
-      "description": "Compares a stated mental model of a codebase against reality and reports the gaps as graded Mermaid diagrams (architecture, deployment, or data-flow).",
+      "name": "lumberjack",
+      "description": "Compares a stated mental model of a codebase against reality and grounds implementation plans in it, reporting the gaps as graded Mermaid diagrams (architecture, deployment, or data-flow).",
       "source": "./",
       "category": "productivity"
     }

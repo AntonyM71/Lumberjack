@@ -1,7 +1,7 @@
 {
-  "name": "codeinsight",
+  "name": "lumberjack",
   "version": "0.1.0",
-  "description": "Compare your mental model of a codebase to how it actually works, with graded Mermaid diagrams.",
+  "description": "Compare your mental model of a codebase to how it actually works, and ground plans for changing it in what's actually true — with graded Mermaid diagrams.",
   "author": {
     "name": "Antony Mitchell",
     "url": "https://github.com/AntonyM71"

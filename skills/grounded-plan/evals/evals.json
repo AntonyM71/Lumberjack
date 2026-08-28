@@ -1,0 +1,51 @@
+{
+  "skill_name": "grounded-plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to add a 'spectator view' page to AEMS \u2014 a public page anyone can open without logging in that shows the live scoreboard. My plan is to have it open a plain WebSocket connection straight to the same live-score channel the arena display uses, since I'm pretty sure that's still just raw WebSockets with our own reconnect logic. Can you help me plan this out? Repo: C:\\Users\\anton\\CodeInSight-eval-targets\\AEMS",
+      "expected_output": "A plan-mode plan for the spectator view feature that is grounded in reality before being written. The grounding step should surface that live updates actually go over Socket.IO (per ADR006), not plain WebSockets, and the plan's technical approach should use socket.io-client (matching how the existing arena display connects) rather than a raw WebSocket API. The plan file should contain a short Grounding section, a Before diagram (plain, current architecture/data-flow around live scoring), an After diagram showing the new spectator view client added and marked as new, and normal implementation steps consistent with the corrected mechanism.",
+      "files": [],
+      "expectations": [
+        "Grounding surfaces that live score updates actually go over Socket.IO per ADR006, not plain/raw WebSockets",
+        "The plan's technical approach has the new spectator view connect via socket.io-client (or equivalent), not a raw WebSocket API, reflecting the correction rather than just noting it",
+        "Plan file has a short Grounding section (a few bullets), not a full restated comparison table",
+        "Plan file includes a Before diagram that is plain/unstyled (no red/amber/green grading marks)",
+        "Plan file includes an After diagram with the new spectator-view component visually marked as new/added, distinct from unchanged elements",
+        "Plan file includes normal implementation steps (files to touch, sequence, testing considerations) beyond just the diagrams",
+        "The ungraded 'your model' diagram and the full graded reality comparison are not duplicated inside the final plan file"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We want to add a Redis container to the AEMS deployment to cache heat/phase score lookups. My understanding is the docker-compose stack currently only has three containers \u2014 frontend, backend, and postgres \u2014 all on the default bridge network with nothing else in front, so my plan is to add redis as a fourth container on that same network and have the backend connect to it directly at redis:6379. Can you help me plan this? Repo: C:\\Users\\anton\\CodeInSight-eval-targets\\AEMS",
+      "expected_output": "A plan-mode plan for adding Redis caching that is grounded in the actual deployment topology first. The grounding step should surface that there's a fourth container already (nginx, port 81) and that GraphicsServer is a separate deployment reached via an external docker network (aems_shared), not just three containers on a default bridge network. The plan should account for the actual topology (e.g. whether nginx needs to know about redis at all, confirming the backend-to-redis path doesn't need to go through nginx) rather than building on the stated three-container picture. Plan file has a Grounding section, a Before deployment diagram, an After deployment diagram with the new redis container marked new, and implementation steps (compose file changes, env vars, cache invalidation approach).",
+      "files": [],
+      "expectations": [
+        "Grounding surfaces that there's already a 4th container (nginx, port 81) in front of the stack, not just three containers on a default bridge network",
+        "Grounding surfaces the separate GraphicsServer deployment reachable via an external docker network (aems_shared)",
+        "The plan's technical approach accounts for the actual topology rather than building on the stated three-container/default-bridge picture",
+        "Plan file has a short Grounding section (a few bullets), not a full restated comparison table",
+        "Plan file includes a Before diagram that is plain/unstyled (no red/amber/green grading marks)",
+        "Plan file includes an After diagram with the new redis container visually marked as new",
+        "Plan file includes normal implementation steps (compose file changes, env vars, cache invalidation approach, testing) beyond just the diagrams",
+        "Where the implementation involves a specific config/code shape (e.g. the new compose service definition), the plan includes an actual snippet rather than only a prose description"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want to add a feature where every time the live score updates on the arena display, we also fire a webhook to our sponsor's API with the latest totals. My plan is to add the webhook call inside the arena display's polling loop on the frontend, since that's where it already re-fetches the latest totals every few seconds. Can you help me flesh this plan out? Repo: C:\\Users\\anton\\CodeInSight-eval-targets\\AEMS",
+      "expected_output": "A plan-mode plan for the sponsor webhook feature grounded in the actual live-scoring data flow first. The grounding step should surface that there is no polling loop \u2014 score updates are pushed server-side via Socket.IO immediately after the DB write (customScoringEndpoints.py emitting current_scores) \u2014 so a frontend-polling-loop approach wouldn't fire reliably or efficiently, and the correct place to trigger the webhook is server-side at the point of the emit, not client-side. Plan file has a Grounding section, a Before data-flow diagram, an After diagram showing the new webhook call marked new at the correct point in the flow, and implementation steps reflecting the server-side approach (e.g. calling the webhook from the same handler that emits current_scores, including error/retry handling).",
+      "files": [],
+      "expectations": [
+        "Grounding surfaces that there is no polling loop \u2014 score updates are pushed server-side via Socket.IO immediately after the DB write, not fetched on an interval",
+        "The plan's technical approach places the webhook call server-side at (or right after) the point of the emit/DB-write, not inside a frontend polling loop that doesn't exist",
+        "Grounding or the plan's reasoning states an independent reason (beyond the polling-vs-push correction) that a frontend-side webhook would be wrong \u2014 e.g. credential/secret exposure, or duplicate firing across multiple open displays \u2014 not just the one factual correction",
+        "Plan file has a short Grounding section, not a full restated comparison table",
+        "Plan file includes a Before diagram that is plain/unstyled (no grading marks)",
+        "Plan file includes an After diagram with the new webhook call marked as new at the correct point in the flow",
+        "Plan file includes normal implementation steps reflecting the server-side approach, including error/retry handling for the outbound webhook call"
+      ]
+    }
+  ]
+}
