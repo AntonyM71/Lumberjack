@@ -72,19 +72,31 @@ is fine") rather than a hedged, double-checked answer, since a hedged
 answer defeats the point of checking it. Scope the question to the area the
 plan actually touches, not the whole system.
 
+If the request points to an issue or ticket, read it straight from its URL
+(a `WebFetch` works) rather than assuming a CLI like `gh` is installed —
+the belief worth checking is often stated there rather than in the chat.
+
 ### 3. Compare it against reality
 
 Delegate this step to the **reality-check** skill rather than
 re-implementing its investigation-and-grading logic here — it already knows
 how to pick a lens (architecture, deployment, or data flow), delegate
 investigation to subagents, and grade claims red/amber/green/grey with
-concrete evidence. If reality-check is available as a skill in this
-session, invoke it. If it isn't (e.g. this skill's own instructions are
-being followed directly in an environment where cross-skill invocation
-isn't wired up), read `../reality-check/SKILL.md` and follow its steps
-2 through 4 inline instead — same grading table, same
-[mermaid-patterns.md](../reality-check/references/mermaid-patterns.md)
-styling.
+concrete evidence. Pick one route and follow it end to end:
+
+- **reality-check is available as a skill** — invoke it and let it run its
+  full flow, including writing its own dated report under
+  `docs/mental-model/`. That report *is* the comparison this step needs;
+  don't re-derive it. The standalone record isn't a duplicate — the plan
+  file later reuses only its plain reality diagram (see step 5).
+- **it isn't available** (this skill's instructions are being followed
+  directly somewhere cross-skill invocation isn't wired up) — read
+  `../reality-check/SKILL.md` and follow its steps 2 through 5 inline:
+  scope, elicit, investigate, grade, build the three diagrams. Stop before
+  its step 6; you don't need a separate report file when the plan is the
+  deliverable. Same grading table, same
+  [mermaid-patterns.md](../reality-check/references/mermaid-patterns.md)
+  styling.
 
 The output of this step is what reality-check normally produces: an
 ungraded "your model" diagram, a graded "reality" diagram, and a small
@@ -95,21 +107,34 @@ own — don't let the fact that a plan follows shrink this step.** It's
 tempting to treat this as a quick check on the way to the real work, but
 the plan is only as good as this investigation: a shallow pass here
 produces a plan built on the same size of blind spot the belief-check was
-supposed to remove, just moved one step later. Delegate to multiple
-parallel subagents the way reality-check's own step 3 does (one per
-service/area/hop) rather than doing a couple of direct reads yourself and
-calling it done.
+supposed to remove, just moved one step later. Delegate to parallel
+subagents the way reality-check's own step 3 does — typically two to four,
+one per service/area/hop — rather than doing the reads yourself.
+
+"Thorough" means coverage, not how much raw material lands back in this
+conversation. Your own context has to survive through step 4's comparison
+and steps 5-6's plan and diagrams, so protect it:
+
+- **Once you've handed an area to a subagent, don't also read it
+  yourself.** Build the comparison from what the subagents report; read a
+  file directly only to settle a contradiction between two reports or to
+  recover a citation one left out.
+- **Ask subagents for findings, not transcripts** — what each concluded
+  plus one `file:line` per point, never pasted diff hunks or file
+  contents. Step 4 needs a citation per claim, not the raw material.
+- **Don't re-run a command you've already run.** Re-fetching identical
+  output is a sign the thread is slipping, and it spends the budget
+  step 5 needs.
 
 This step is also where the plan's real risks and constraints tend to
-surface, not just whether the one stated claim was right — existing docs
-that mention a scaling limit, a security posture, a rate limit, an
-inconsistency between two related pieces of config, anything that the
-*new* work would touch or make worse. reality-check on its own has no
-reason to go looking for this (it's only checking a belief against
-reality), but a plan built without it misses exactly the things that turn
-into incidents. Read what reality-check's own investigation turns up with
-an eye toward "does this matter to what's about to be built," not only
-"was the claim true."
+surface, not just whether the one stated claim was right — a scaling
+limit, a security posture, a rate limit, an inconsistency between two
+pieces of config, anything the *new* work would touch or make worse.
+reality-check on its own has no reason to go looking for this. Fold it
+into the subagent briefs as one extra question each ("note anything the
+new work would touch or make worse"), rather than a second investigation
+pass of your own. Then read what comes back with an eye toward "does this
+matter to what's about to be built," not only "was the claim true."
 
 **Once the stated belief turns out wrong, keep asking whether the original
 approach would have been a bad idea anyway, independent of that specific
@@ -142,9 +167,11 @@ as a formality on the way to a plan you'd already decided on.
 
 Once the change is grounded and refined, continue into Claude Code's normal
 Plan Mode if not already in it. Write the plan to the file the harness
-provides — this skill does not invent its own doc location or path
-convention the way reality-check does, because a grounded plan is meant to
-flow into the same approve-then-implement cycle as any other plan.
+provides — a grounded plan flows into the same approve-then-implement cycle
+as any other plan, so it doesn't need its own path convention the way
+reality-check does. If the harness provides no plan file, fall back to
+`docs/plans/YYYY-MM-DD-<slug>.md` rather than stalling with nowhere to
+write.
 
 Use this structure in the plan file:
 
@@ -220,10 +247,11 @@ the plan file:
    diagram 2, with the grading stripped, since by now it's just true.
 4. **After** in the plan file — diagram 3 with the plan's changes marked.
 
-If the drift between belief and reality was large enough that it's worth a
-permanent record independent of this plan, that's what a standalone
-reality-check report is for — run it separately rather than keeping the
-graded diagram around here as a substitute.
+Diagrams 1 and 2 don't need a home in the plan file. If reality-check ran
+as a skill in step 3, its own dated report already keeps them. If step 3
+was done inline, they were working material for the step 4 conversation —
+save them only if the drift turns out big enough to be worth its own
+reality-check report.
 
 ## Dependencies
 

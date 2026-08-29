@@ -94,7 +94,20 @@ tool (Explore or general-purpose) rather than reading everything inline —
 it keeps your own context clean for the comparison step and covers more
 ground in parallel. Spin up more than one agent when the area spans
 multiple services or concerns (e.g. one agent per service for an
-architecture lens, or one per hop for a data-flow lens).
+architecture lens, or one per hop for a data-flow lens); two to four is
+usually right.
+
+Two habits keep this step from eating the context that the comparison and
+diagrams need:
+
+- **Once an area is delegated, don't also read it yourself.** Build the
+  comparison from what the agents report back; read a file directly only
+  to resolve a conflict between two reports or to recover a missing
+  citation.
+- **Ask agents for findings plus one `file:line` per point — not pasted
+  code or diff hunks.** Step 4 grades claims against citations, not
+  against raw material, and a wall of pasted source is the thing most
+  likely to blow the budget before the diagrams get drawn.
 
 What to look for depends on the lens:
 
