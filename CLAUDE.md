@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Lumberjack (the working directory is `CodeInSight`; the shipped plugin, README, and manifests all call it `lumberjack`) is a Claude Code **plugin** — no application code, no build step, no compiled artifacts. It packages two skills that compare a developer's stated mental model of a codebase against what the code actually does, and render the gaps as graded Mermaid diagrams.
+Lumberjack (the working directory is `CodeInSight`; the shipped plugin, README, and manifests all call it `lumberjack`) is a Claude Code **plugin** — no application code, no build step, no compiled artifacts. It packages four skills in two independent pairs. The **mental-model pair** compares a developer's stated understanding of a codebase against what the code actually does and renders the gaps as graded Mermaid diagrams. The **comment pair** holds the line on comments: one keeps them from being written, the other cuts the ones already there.
 
 The repo is also its own plugin marketplace: `.claude-plugin/marketplace.json` sets the plugin `source` to `./`.
 
@@ -23,6 +23,8 @@ Skill authoring and description tuning go through the `skill-creator` skill. Eva
 
 - `skills/reality-check/` — the diagnostic skill
 - `skills/grounded-plan/` — the planning skill; depends on reality-check
+- `skills/comment-discipline/` — the comment mode; persistent, governs comments as they get written
+- `skills/prune-comments/` — the comment review; one-shot report over comments already in the tree
 - `skills/<name>/SKILL.md` — frontmatter (`name`, `description`) plus the step-by-step procedure
 - `skills/<name>/references/*.md` — progressive-disclosure docs; SKILL.md names which to read at which step, they are not loaded up front
 - `skills/<name>/evals/evals.json` — skill-creator eval suite
@@ -30,7 +32,7 @@ Skill authoring and description tuning go through the `skill-creator` skill. Eva
 
 ## Architecture
 
-**The two skills are a composed pair.**
+**The mental-model skills are a composed pair.**
 
 - **reality-check** runs standalone: scope the comparison (an area + one of three lenses) → elicit the mental model close to verbatim → investigate the real code (delegated to parallel `Agent` subagents) → grade each claim → build the diagrams → write a report to `docs/mental-model/YYYY-MM-DD-<slug>.md` **in the target repo, not this one**, and never auto-commit it.
 - **grounded-plan** wraps reality-check: it runs the reality-check comparison as the grounding phase before Plan Mode, then continues into writing the plan with a Before/After diagram pair. If reality-check is not available as an invocable skill it falls back to following `skills/reality-check/SKILL.md` inline. Both skills ship in this one plugin, so that dependency is normally satisfied.
@@ -44,8 +46,18 @@ Skill authoring and description tuning go through the `skill-creator` skill. Eva
 
 **The diagrams are the deliverable; prose stays minimal.** A finding about how two things relate (protocol, push vs poll, call direction) is an *edge* claim, and its correction goes in the edge label phrased as a sentence that reads with its two endpoints — "pushes new scores via Socket.IO, not polled". Misfiling an edge claim onto a node is the specific failure mode both skills exist to avoid. In the findings table, the Evidence column is a bare `file:line` citation — never quoted code, never a sentence.
 
+**The comment skills are a mode/review pair, not a composition.** Neither invokes the other; they split by tense.
+
+- **comment-discipline** is persistent and governs comments as code gets written. Before writing one, climb the ladder: can the code say it (rename, extract, name the constant)? is this just the what? is it a why the code cannot hold?
+- **prune-comments** is one-shot and judges comments already in the tree — the same ladder applied backwards, reported one line per finding, worst first, tagged `lies:` / `commented-out:` / `noise:` / `git-has-it:` / `redundant:`, ending in a `net:` count. It reports and applies nothing.
+
+Both are modelled on the `ponytail` plugin's mode/review split and deliberately sized like it (75 and 160 lines, against reality-check's 284). **A comment that earns its keep is the thing these skills exist to protect**, not the noise they cut: a why whose reason lives outside the file, a warning, an amplification of a load-bearing line, published API documentation, and machine directives (`# noqa`, `// eslint-disable-next-line`), which are not comments at all and break the build if touched.
+
 ## Editing skills here
 
 - Each SKILL.md `description` is tuned for trigger accuracy through a documented iteration process (see `skills/<name>-workspace/description-optimization/`). Treat any change to it as significant and re-run the trigger evals rather than tweaking it casually.
 - Prose — both in skill output and in the skill instructions themselves — follows Strunk's *Elements of Style*: terse, active voice, concrete, positive form. See `skills/reality-check/references/writing-style.md`.
 - Every diagram edge/arrow label must read as a natural-language sentence that includes its endpoints.
+- **Size a new skill like ponytail's (40–160 lines), and make every section earn its place.** A 497-line draft of prune-comments scored no better on its own evals than the 160-line version that replaced it, and its 283-line `references/comment-tags.md` was never opened once across three eval runs. A progressive-disclosure reference file costs real effort and is not read by default — put the content in SKILL.md, or drop it.
+- **Instruct a check; naming a category does not produce one.** Cutting that skill lost two findings, and both came back from roughly 13 lines that told the model to go and verify — "Check before cutting: … go and find out why it isn't". The bullets that merely described a category produced no verification at all. Tool-call counts per run track this directly and are the fastest way to spot it: the losing run made 4 calls where the winning ones made 9 and 10.
+- Prefer a harder boundary to a broader description when a skill's output strays into an adjacent domain. "Noting one in passing is fine" licensed whole code-review sections; "at most one closing line — never its own section, never a hunt" stopped it in every run.
