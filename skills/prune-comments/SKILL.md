@@ -75,6 +75,11 @@ Worst first, and this order is the report's order.
 | `git-has-it:` | A changelog, a byline, a ticket id recording an edit | `git log`, `git blame` |
 | `redundant:` | Restates the line below, or says what the name says | Nothing |
 
+These five are the tag slot. Two more markers belong in the same position and
+are not tags: `keep:` for a comment that survives, and `rung 2:` or `rung 3:`
+where the verdict is a rename or a rewrite rather than a deletion. A finding
+carries one or the other, never both.
+
 Bulk arrives by copy-paste or by a lint rule. When one habit mints dozens, file
 it once with a count and name the rule — forty identical findings is the same
 noise problem in a new place.
@@ -109,7 +114,7 @@ Ask what a reader loses without it. "Nothing, the code says it" means rung 1.
 
 ## Output
 
-One line per comment, worst first:
+One line per finding, worst first:
 
 ```
 <path>:L<n>: <tag> <the comment, quoted short or paraphrased>. <verdict>.
@@ -124,9 +129,11 @@ potentially be updated or removed."
 
 ✅ `poller.py:L88: lies: "returns once closed". Waits out a blind timeout, then throws. Delete — close_or_timeout() says it.`
 
-✅ `date.py:L12-38: git-has-it: 26-line dated changelog. Delete.`
-
 ✅ `cart.py:L140-166: commented-out: the old pricing branch. Delete.`
+
+✅ `admin.java:L120: noise: "// Actions ////////////", a banner divider over a 200-line class. Delete; the outline pane does this.`
+
+✅ `date.py:L12-38: git-has-it: 27-line dated changelog. Delete.`
 
 ✅ `user.java:L23: redundant: "@param name the name". 41 more like it — the checkstyle JavadocMethod rule mints them. Drop the rule, then the comments.`
 
@@ -134,7 +141,8 @@ potentially be updated or removed."
 
 ✅ `parse.c:L201: keep: names the RFC 2045 clause the padding follows.`
 
-End with the count, and nothing after it:
+End with the count. A code problem a comment led you to goes in one line just
+above it (see Boundaries); nothing follows it.
 
 ```
 net: -<N> comment lines, <M> renames.
@@ -154,7 +162,11 @@ closing line — never its own section, never a hunt. Correctness, security and
 performance belong to a normal review pass, and drifting there turns this into a
 slower duplicate of one.
 
-This removes comments and never writes them; a request to add them, or to govern
-the comments written from here on, is `comment-discipline`'s job, not this
-one's. Prose files, and pull-request review
-comments, are out of scope. Reports findings, applies nothing. One shot.
+This judges comments already written and never writes new ones; a request to add
+them, or to govern the comments written from here on, is `comment-discipline`'s
+job. A request to apply these cuts belongs to neither skill: the report is the
+deliverable, so hand it over, then make the edits as an ordinary task if the
+user still wants them. Don't bounce that request between the two.
+
+Prose files, and pull-request review comments, are out of scope. Reports
+findings, applies nothing. One shot.

@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "lumberjack",
-  "description": "Compare your mental model of a codebase to how it actually works, and ground plans for changing it in what's actually true — with graded Mermaid diagrams.",
+  "description": "Clears the overgrowth between you and the code. Compare your mental model of a codebase to how it actually works and ground your plans in that, with graded Mermaid diagrams — then hold the line on comments: one skill keeps them from being written, another cuts the ones already there.",
   "owner": {
     "name": "Antony Mitchell",
     "url": "https://github.com/AntonyM71"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "lumberjack",
-      "description": "Compares a stated mental model of a codebase against reality and grounds implementation plans in it, reporting the gaps as graded Mermaid diagrams (architecture, deployment, or data-flow).",
+      "description": "Four skills in two pairs. Compares a stated mental model of a codebase against reality and grounds implementation plans in it, reporting the gaps as graded Mermaid diagrams (architecture, deployment, or data-flow). Reviews the comments already in the code and reports which to cut, worst first, and keeps new ones from being written where the code could say it instead.",
       "source": "./",
       "category": "productivity"
     }

@@ -1,7 +1,7 @@
 {
   "name": "lumberjack",
-  "version": "0.1.0",
-  "description": "Compare your mental model of a codebase to how it actually works, and ground plans for changing it in what's actually true — with graded Mermaid diagrams.",
+  "version": "0.2.0",
+  "description": "Clears the overgrowth between you and the code. Compare your mental model of a codebase to how it actually works and ground your plans in that, with graded Mermaid diagrams — then hold the line on comments: one skill keeps them from being written, another cuts the ones already there.",
   "author": {
     "name": "Antony Mitchell",
     "url": "https://github.com/AntonyM71"

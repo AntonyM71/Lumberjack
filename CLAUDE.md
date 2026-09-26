@@ -48,16 +48,26 @@ Skill authoring and description tuning go through the `skill-creator` skill. Eva
 
 **The comment skills are a mode/review pair, not a composition.** Neither invokes the other; they split by tense.
 
-- **comment-discipline** is persistent and governs comments as code gets written. Before writing one, climb the ladder: can the code say it (rename, extract, name the constant)? is this just the what? is it a why the code cannot hold?
-- **prune-comments** is one-shot and judges comments already in the tree — the same ladder applied backwards, reported one line per finding, worst first, tagged `lies:` / `commented-out:` / `noise:` / `git-has-it:` / `redundant:`, ending in a `net:` count. It reports and applies nothing.
+**The ladder is defined here and copied into both skills.** Each skill loads on its own, so each has to carry its own operative copy — a shared reference file would not be read (see Editing skills here). This table is the canonical version: the rungs mean the same thing on both sides, and the two skills differ only in tense.
 
-Both are modelled on the `ponytail` plugin's mode/review split and deliberately sized like it (75 and 160 lines, against reality-check's 284). **A comment that earns its keep is the thing these skills exist to protect**, not the noise they cut: a why whose reason lives outside the file, a warning, an amplification of a load-bearing line, published API documentation, and machine directives (`# noqa`, `// eslint-disable-next-line`), which are not comments at all and break the build if touched.
+| rung | comment-discipline (before it is written) | prune-comments (already written) |
+|---|---|---|
+| 1 | Delete it | Delete it |
+| 2 | Make the code say it | Make the code say it |
+| 3 | Write only the why | Cut it to the why |
+| 4 | Write it properly | Keep it |
+
+- **comment-discipline** is persistent and governs comments as code gets written. Rung 1 catches the most: a model's comments are usually artefacts of producing the code — edit scaffolding like `// ...existing code...`, narration of the step just taken, a note addressed to itself.
+- **prune-comments** is one-shot and judges comments already in the tree, reported one line per finding, worst first, tagged `lies:` / `commented-out:` / `noise:` / `git-has-it:` / `redundant:`, with `keep:` and `rung N:` as verdict markers in the same slot, ending in a `net:` count. It reports and applies nothing.
+
+Both are modelled on the `ponytail` plugin's mode/review split and sized in its spirit — far shorter than reality-check, with no reference files. **A comment that earns its keep is the thing these skills exist to protect**, not the noise they cut: a why whose reason lives outside the file, a warning, an amplification of a load-bearing line, published API documentation, and machine directives (`# noqa`, `// eslint-disable-next-line`), which are not comments at all and break the build if touched.
 
 ## Editing skills here
 
 - Each SKILL.md `description` is tuned for trigger accuracy through a documented iteration process (see `skills/<name>-workspace/description-optimization/`). Treat any change to it as significant and re-run the trigger evals rather than tweaking it casually.
 - Prose — both in skill output and in the skill instructions themselves — follows Strunk's *Elements of Style*: terse, active voice, concrete, positive form. See `skills/reality-check/references/writing-style.md`.
 - Every diagram edge/arrow label must read as a natural-language sentence that includes its endpoints.
-- **Size a new skill like ponytail's (40–160 lines), and make every section earn its place.** A 497-line draft of prune-comments scored no better on its own evals than the 160-line version that replaced it, and its 283-line `references/comment-tags.md` was never opened once across three eval runs. A progressive-disclosure reference file costs real effort and is not read by default — put the content in SKILL.md, or drop it.
+- **Size a new skill like ponytail's — roughly 40–180 lines — and make every section earn its place.** The ceiling is a guideline extrapolated from ponytail's own family (41–120), not a measured law; prune-comments sits above it because it carries a "what earns its keep" list that ponytail-review has no need for, and that list is the part the evals proved load-bearing. Treat a skill drifting past it as a prompt to re-read the sections, not as a failure. A 497-line draft of prune-comments scored no better on its own evals than the 160-line version that replaced it, and its 283-line `references/comment-tags.md` was never opened once across three eval runs. A progressive-disclosure reference file costs real effort and is not read by default — put the content in SKILL.md, or drop it.
 - **Instruct a check; naming a category does not produce one.** Cutting that skill lost two findings, and both came back from roughly 13 lines that told the model to go and verify — "Check before cutting: … go and find out why it isn't". The bullets that merely described a category produced no verification at all. Tool-call counts per run track this directly and are the fastest way to spot it: the losing run made 4 calls where the winning ones made 9 and 10.
+- **The comment ladder is stated in three places — both SKILL.md files and the Architecture table above — and they move together.** Runtime duplication is forced, because each skill loads alone and a shared reference file would not be read. Silent drift is not: the rungs transposed between the two skills once already, and the Architecture copy went stale during the fix for it. Edit a rung, edit all three, and take the table above as the version that settles disagreements.
 - Prefer a harder boundary to a broader description when a skill's output strays into an adjacent domain. "Noting one in passing is fine" licensed whole code-review sections; "at most one closing line — never its own section, never a hunt" stopped it in every run.

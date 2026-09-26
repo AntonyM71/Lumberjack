@@ -7,7 +7,7 @@
       "expected_output": "A terse one-line-per-finding report over timer.py, worst first, applying no edits. Should catch the misplaced '# Skip if Socket.IO functionality is disabled' at L215 (the display write below it runs regardless; the real guard is four lines later), the orphaned '# In your timer_task or start_timer, use:' at L62 (sits over module-level code in neither function), the banner/section markers (# GPIO setup, # Timer and threading variables, # Timer phase management functions, # Main program loop), and the run of redundant narration (# Run first phase, # Start timer thread, # Clean up timer state). The L96-100 server-config block is a rung 3 case, not a keep: L96-98 is true (docker-compose.yaml:40 maps 81:80) and must survive, while L99-100's SOCKETIO_PATH advice is stale (nginx.conf:48 proxies /socket.io/ directly, so no override is needed). Ends with a net line count.",
       "files": [],
       "expectations": [
-        "Report is one line per finding with a file:line location, not prose paragraphs",
+        "Report is one line per finding with a line reference (bare `L88:` is correct for a single-file scope; `path.py:L88:` for a wider one), not prose paragraphs",
         "Flags the misplaced '# Skip if Socket.IO functionality is disabled' comment at L215 as misleading, noting the code below it runs regardless",
         "Flags the orphaned '# In your timer_task or start_timer, use:' comment at L62",
         "Flags at least two banner/section-header comments (e.g. '# GPIO setup', '# Main program loop') as markers",
@@ -27,7 +27,7 @@
       "expectations": [
         "Groups the repeated '# Apply filters'/'# Apply ordering'/'# Apply pagination' comments into a bulk finding with a count rather than one line per occurrence",
         "Report is one line per finding with file:line locations, not prose paragraphs",
-        "Preserves the repeated '# Refresh to get generated IDs' comments rather than cutting them, since ids are server-generated (Server/db/models.py:34 server_default gen_random_uuid) and the refresh loop reads as a redundant round-trip without them",
+        "Preserves the repeated '# Refresh to get generated IDs' comments rather than cutting them, since ids are server-generated (Server/db/models.py:35 server_default gen_random_uuid) and the refresh loop reads as a redundant round-trip without them",
         "Preserves the endpoint docstrings, recognising they are published as OpenAPI operation descriptions (Common/openapi.json carries 26) and consumed by the generated frontend client",
         "Total findings stay readable — the report does not list every comment in the directory individually",
         "Every finding carries a concrete verdict rather than a hedged suggestion",
