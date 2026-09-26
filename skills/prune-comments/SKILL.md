@@ -63,6 +63,12 @@ Run every comment down it. Stop at the first rung that holds.
 Delete-first on purpose: rung 1 costs nothing, rung 4 changes nothing. Reaching
 for rung 3 when rung 1 holds just rewrites the same lies in better prose.
 
+Rung 1 needs a check, not a glance. A bare literal rarely says enough by
+itself: `interval * 1000` doesn't say seconds-to-milliseconds, `set_margin(-15)`
+doesn't say 1.5cm from the edge. Before tagging one `redundant:`, find where the
+literal's meaning actually lives. Nowhere but the comment means rung 2 — name
+it — not rung 1.
+
 ## Tags
 
 Worst first, and this order is the report's order.
@@ -80,9 +86,11 @@ are not tags: `keep:` for a comment that survives, and `rung 2:` or `rung 3:`
 where the verdict is a rename or a rewrite rather than a deletion. A finding
 carries one or the other, never both.
 
-Bulk arrives by copy-paste or by a lint rule. When one habit mints dozens, file
-it once with a count and name the rule — forty identical findings is the same
-noise problem in a new place.
+Bulk arrives by copy-paste or by a lint rule, and they want different verdicts.
+A lint rule mints comments over code that isn't itself duplicated — file it
+once with a count and name the rule; rung 1, the comments go. Copy-paste
+duplicates the comment with the code beneath it — that's rung 2: extract the
+shared code into one named function, and every copy of both goes with it.
 
 ## What earns its keep
 
@@ -138,6 +146,10 @@ potentially be updated or removed."
 ✅ `user.java:L23: redundant: "@param name the name". 41 more like it — the checkstyle JavadocMethod rule mints them. Drop the rule, then the comments.`
 
 ✅ `report.rb:L52: rung 2: "check if the employee is eligible". Extract isEligibleForBenefits(employee); the comment goes with it.`
+
+✅ `sync.go:L52: rung 2: "Convert seconds to milliseconds" over interval * 1000. Extract secondsToMs(interval); the comment goes with it.`
+
+✅ `retry.js:L30 (+2 more): rung 2: "Retry the request once", copy-pasted 3 times over a catch block that calls the same request again. Extract retryOnce(request) once; every copy of the code and comment goes with it.`
 
 ✅ `parse.c:L201: keep: names the RFC 2045 clause the padding follows.`
 
