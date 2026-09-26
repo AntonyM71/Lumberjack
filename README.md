@@ -10,6 +10,8 @@ Now you're probably thinking, doesn't Claude do that anyway? Well it can, but of
 
 - **[reality-check](skills/reality-check/SKILL.md)** — describe your mental model of a codebase area (architecture, deployment, or data flow), and get back a Markdown report with a plain diagram of your model next to a red/amber/green-graded diagram of reality.
 - **[grounded-plan](skills/grounded-plan/SKILL.md)** — plan a change to an existing system without building it on a stale picture of that system: grounds your stated understanding against the real code first (via reality-check), then bakes a before/after diagram pair into the implementation plan alongside the normal technical steps.
+- **[prune-comments](skills/prune-comments/SKILL.md)** — review the comments already in a file, a diff, or the whole repo, and get back one line per finding, worst first: what lies about the code, what git already remembers, what the code says better itself, and the few that earn their keep. Reports; you delete.
+- **[comment-discipline](skills/comment-discipline/SKILL.md)** — the same standard applied to code as it gets written, so the comments never arrive in the first place. A persistent mode: name the thing in code rather than narrate it in a comment, and write only the why the code cannot hold.
 
 ## Installation
 
