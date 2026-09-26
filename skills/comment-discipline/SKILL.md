@@ -30,18 +30,31 @@ only on "stop comment-discipline" or "normal mode".
 
 ## The ladder
 
-Before writing any comment, climb. Stop at the first rung that holds.
+Run every comment you are about to write — or have just written — down the
+ladder. Stop at the first rung that holds. The rungs match `prune-comments`',
+so a rung number means the same thing in both.
 
-1. **Can the code say it?** Rename the variable, extract the function, hoist the
-   literal to a named constant. Then write no comment.
-2. **Is it the what?** The code already says it. Write nothing.
-3. **Is it a why the code cannot hold?** One line, and only the reason.
-4. **Is it one of the four below?** Write it, properly.
+1. **Delete it.** Most comments a model produces are artefacts of producing it,
+   not information: scaffolding from your own edit (`// ...existing code...`), a
+   narration of the step you just took, a note addressed to yourself rather than
+   to a reader, or a restatement of the line below. Write nothing in their place.
+2. **Make the code say it.** Rename the variable, extract the function, hoist
+   the literal to a named constant. The comment has nothing left to say.
+3. **Write only the why.** One line, the reason alone, never the what.
+4. **Write it properly.** The four below earn their keep; give them the care you
+   gave the code.
 
-Rung 1 is the one that pays. A comment reading "check if the employee is
+Rung 1 catches the most and is the easiest to skip, because a comment written a
+moment ago still feels like it carries something. It rarely does — you are the
+only reader who holds the context that made it feel useful, and you will not be
+there when it matters. `// ...existing code...` sat committed between two
+endpoints in a real codebase this pair was tested against: nobody meant to ship
+it, and nobody noticed.
+
+Rung 2 is the one that pays. A comment reading "check if the employee is
 eligible" above a two-condition `if` is a function name that never got written.
 `isEligibleForBenefits()` deletes the comment and improves the code in one
-stroke — which is why the ladder starts at the code, not at the wording.
+stroke — which is why the ladder reaches for the code before the wording.
 
 ## The four that earn their keep
 
