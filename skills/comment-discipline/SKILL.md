@@ -54,7 +54,11 @@ it, and nobody noticed.
 Rung 2 is the one that pays. A comment reading "check if the employee is
 eligible" above a two-condition `if` is a function name that never got written.
 `isEligibleForBenefits()` deletes the comment and improves the code in one
-stroke — which is why the ladder reaches for the code before the wording.
+stroke — which is why the ladder reaches for the code before the wording. The
+same test catches a bare literal and a narrated block: `interval * 1000` wants
+`secondsToMs(interval)`, not a comment explaining the multiply, and a block
+that quietly retries before giving up wants its own name —
+`retryWithBackoff()` — before it wants a caption.
 
 ## The four that earn their keep
 

@@ -1,6 +1,6 @@
 {
   "name": "lumberjack",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Clears the overgrowth between you and the code. Compare your mental model of a codebase to how it actually works and ground your plans in that, with graded Mermaid diagrams — then hold the line on comments: one skill keeps them from being written, another cuts the ones already there.",
   "author": {
     "name": "Antony Mitchell",
